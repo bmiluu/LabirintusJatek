@@ -17,13 +17,14 @@ namespace LabirintusJatek
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    
+
 
     //TODO 1: Check map integrity when loading in map
     //TODO 2: Change rendering to only display a 30x30 area around the player
     //TODO 3: Maybe add a minimap
     //TODO 4: Add win condition
     //TODO 5: Refactor code so it looks more nice
+    //TODO 6: Change rendering format (image based)
     public partial class MainWindow : Window
     {
         List<string> map = new List<string>();
@@ -65,9 +66,9 @@ namespace LabirintusJatek
                         Border tile = CreateTile(map[x][y]);
                         tiles[x,y] = tile;
                         MazeGrid.Children.Add(tile);
+                        
                     }
                 }
-                MazeGrid.LayoutTransform = new ScaleTransform(1.5, 1.5);
                 tiles[pLoc[0], pLoc[1]].Background = Brushes.Yellow;
                 ((TextBlock)tiles[pLoc[0], pLoc[1]].Child).Foreground = Brushes.Black;
             }
@@ -79,20 +80,26 @@ namespace LabirintusJatek
             return new Border
             {
                 Background = Brushes.Black,
-                HorizontalAlignment = HorizontalAlignment.Stretch,
-                VerticalAlignment = VerticalAlignment.Stretch,
-                BorderThickness = new Thickness(0),
-                Width = 20,
-                Height = 20,
-                SnapsToDevicePixels = true,
+                Padding = new Thickness(0),
+                Margin = new Thickness(0),
+
                 Child = new TextBlock
                 {
                     Text = c == '.' ? "" : c.ToString(),
                     Foreground = Brushes.White,
                     FontFamily = new FontFamily("Consolas"),
-                    FontSize = 20,
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                    VerticalAlignment = VerticalAlignment.Center
+                    FontSize = 45,
+                    Margin = new Thickness(0),
+                    Padding = new Thickness(0),
+
+
+                    TextAlignment = TextAlignment.Center,
+
+                    HorizontalAlignment = HorizontalAlignment.Stretch,
+                    VerticalAlignment = VerticalAlignment.Stretch,
+
+                    TextWrapping = TextWrapping.NoWrap,
+                    LineStackingStrategy = LineStackingStrategy.BlockLineHeight
                 }
             };
         }
