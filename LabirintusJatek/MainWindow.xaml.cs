@@ -17,6 +17,13 @@ namespace LabirintusJatek
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
+    
+
+    //TODO 1: Check map integrity when loading in map
+    //TODO 2: Change rendering to only display a 30x30 area around the player
+    //TODO 3: Maybe add a minimap
+    //TODO 4: Add win condition
+    //TODO 5: Refactor code so it looks more nice
     public partial class MainWindow : Window
     {
         List<string> map = new List<string>();
@@ -62,6 +69,7 @@ namespace LabirintusJatek
                 }
                 MazeGrid.LayoutTransform = new ScaleTransform(1.5, 1.5);
                 tiles[pLoc[0], pLoc[1]].Background = Brushes.Yellow;
+                ((TextBlock)tiles[pLoc[0], pLoc[1]].Child).Foreground = Brushes.Black;
             }
             
         }
@@ -201,10 +209,12 @@ namespace LabirintusJatek
         void RedrawPlayer(Direction direction)
         {
             tiles[pLoc[0], pLoc[1]].Background = Brushes.Black;
+            ((TextBlock)tiles[pLoc[0], pLoc[1]].Child).Foreground = Brushes.White;
             var (dx, dy) = GetDelta(direction);
             pLoc[0] += dx;
             pLoc[1] += dy;
             tiles[pLoc[0], pLoc[1]].Background = Brushes.Yellow;
+            ((TextBlock)tiles[pLoc[0], pLoc[1]].Child).Foreground = Brushes.Black;
         }
     }
 }
