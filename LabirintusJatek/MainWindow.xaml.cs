@@ -41,7 +41,6 @@ namespace LabirintusJatek
         public MainWindow()
         {
             InitializeComponent();
-            this.Focus();
         }
 
         private void LoadMap_Click(object sender, RoutedEventArgs e)

@@ -9,7 +9,6 @@ namespace LabirintusJatek
 {
     internal class Map
     {
-        Player p;
         char[,] map;
         int rows;
         int cols;
@@ -17,16 +16,13 @@ namespace LabirintusJatek
         public int Rows { get => rows; }
         public int Cols { get => cols; }
 
-        public Player P { get => p; }
-
         public char this[int i, int j]
         {
             get { return map[i, j]; }
         }
 
-        public Map(Player p, char[,] map)
+        public Map( char[,] map)
         {
-            this.p = p;
             this.map = map;
             rows = map.GetLength(0);
             cols = map.GetLength(1);

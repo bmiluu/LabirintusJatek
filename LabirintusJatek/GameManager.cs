@@ -13,6 +13,7 @@ namespace LabirintusJatek
     public class GameManager
     {
         Map? m;
+        Player? p;
         Label[,] tiles;
         public static GameManager Instance { get; } = new GameManager();
 
@@ -39,7 +40,8 @@ namespace LabirintusJatek
                 return;
             }
             vec2 pPos = Player.DeterminePlayerPos(map);
-            m = new Map(new Player(pPos), map);
+            p = new Player(pPos);
+            m = new Map(map);
         }
 
         public void DrawMap(UniformGrid MazeGrid)
@@ -61,7 +63,7 @@ namespace LabirintusJatek
                 }
             }
 
-            tiles[m.P.Position.Y, m.P.Position.X].Background = Brushes.Yellow;
+            DrawPlayer(p.Position);
         }
 
 
@@ -69,7 +71,7 @@ namespace LabirintusJatek
         {
             Label tile = new Label();
 
-            tile.Content = tileType.ToString();
+            tile.Content = tileType == '.' ? "" : tileType.ToString();
 
             tile.FontSize = m.Cols*2;
             tile.FontWeight = FontWeights.Bold;
@@ -79,14 +81,20 @@ namespace LabirintusJatek
 
             tile.FontFamily = new FontFamily("Consolas");
 
-            tile.HorizontalAlignment = HorizontalAlignment.Center;
-            tile.VerticalAlignment = VerticalAlignment.Center;
+            tile.HorizontalAlignment = HorizontalAlignment.Stretch;
+            tile.VerticalAlignment = VerticalAlignment.Stretch;
 
             tile.Margin = new Thickness(0);
             tile.Padding = new Thickness(0);
             tile.BorderThickness = new Thickness(0);
 
             return tile;
+        }
+
+        private void DrawPlayer(vec2 pPos)
+        {
+            tiles[pPos.Y, pPos.X].Background = Brushes.Yellow;
+            tiles[pPos.Y, pPos.X].Foreground = Brushes.Black;       
         }
     }
 }
