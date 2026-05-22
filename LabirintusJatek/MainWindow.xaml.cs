@@ -50,58 +50,10 @@ namespace LabirintusJatek
             ofd.Filter = "Map Files (*.map)|*.map";
             if(ofd.ShowDialog() == true)
             {
-                StreamReader sr = new StreamReader(ofd.FileName);
-                string? line;
-                while ((line = sr.ReadLine()) != null)
-                {
-                    map.Add(line);
-                    MazeGrid.Columns = line.Length;
-                }
-
-                tiles = new Border[map.Count, map[0].Length];
-                for (int x = 0; x < map.Count; x++)
-                {
-                    for(int y = 0; y < map[x].Length; y++)
-                    {
-                        Border tile = CreateTile(map[x][y]);
-                        tiles[x,y] = tile;
-                        MazeGrid.Children.Add(tile);
-                        
-                    }
-                }
-                tiles[pLoc[0], pLoc[1]].Background = Brushes.Yellow;
-                ((TextBlock)tiles[pLoc[0], pLoc[1]].Child).Foreground = Brushes.Black;
+                GameManager.Instance.StartGame(ofd.FileName);
+                MazeGrid.Children.Clear();
+                GameManager.Instance.DrawMap(MazeGrid);
             }
-            
-        }
-
-        private Border CreateTile(char c)
-        {
-            return new Border
-            {
-                Background = Brushes.Black,
-                Padding = new Thickness(0),
-                Margin = new Thickness(0),
-
-                Child = new TextBlock
-                {
-                    Text = c == '.' ? "" : c.ToString(),
-                    Foreground = Brushes.White,
-                    FontFamily = new FontFamily("Consolas"),
-                    FontSize = 45,
-                    Margin = new Thickness(0),
-                    Padding = new Thickness(0),
-
-
-                    TextAlignment = TextAlignment.Center,
-
-                    HorizontalAlignment = HorizontalAlignment.Stretch,
-                    VerticalAlignment = VerticalAlignment.Stretch,
-
-                    TextWrapping = TextWrapping.NoWrap,
-                    LineStackingStrategy = LineStackingStrategy.BlockLineHeight
-                }
-            };
         }
 
         private void Window_KeyDown(object sender, KeyEventArgs e)

@@ -22,6 +22,6 @@
             <Button Grid.Row="0" Click="LoadMap_Click">Load Map</Button>
             <Button Grid.Row="2">Display Gilbert</Button>
         </Grid>
-        <UniformGrid x:Name="MazeGrid" Grid.Column="1" Background="Black" TextOptions.TextFormattingMode="Display" TextOptions.TextRenderingMode="Aliased"/>
+        <UniformGrid x:Name="MazeGrid" Grid.Column="1" Background="Black" TextOptions.TextFormattingMode="Display" TextOptions.TextRenderingMode="Aliased" SnapsToDevicePixels="True"/>
     </Grid>
 </Window>
