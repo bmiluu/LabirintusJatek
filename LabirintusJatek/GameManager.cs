@@ -12,10 +12,17 @@ namespace LabirintusJatek
 {
     public class GameManager
     {
-        Map? m;
-        Player? p;
-        Label[,] tiles;
+        Map m = null!;
+        Player p = null!;
+        Label[,] tiles = null!;
+        char[,] mistMap = null!;
+        Modes mode = Modes.MIST;
         public static GameManager Instance { get; } = new GameManager();
+        enum Modes
+        {
+            NORMAL,
+            MIST
+        }
 
         public void StartGame(string mapPath)
         {
@@ -42,28 +49,80 @@ namespace LabirintusJatek
             vec2 pPos = Player.DeterminePlayerPos(map);
             p = new Player(pPos);
             m = new Map(map);
+            mistMap = InitMistMap(rows, cols, '.');
+        }
+
+        char[,] InitMistMap(int rows, int cols, char c)
+        {
+            char[,] mistMap = new char[rows, cols];
+            for (int i = 0; i < rows; i++)
+            {
+                for (int j = 0; j < cols; j++)
+                {
+                    mistMap[i, j] = c;
+                }
+            }
+            return mistMap;
         }
 
         public void DrawMap(UniformGrid MazeGrid)
         {
-            MazeGrid.Children.Clear();
-            MazeGrid.Rows = m.Rows;
-            MazeGrid.Columns = m.Cols;
-            MazeGrid.Margin = new Thickness(0);
-
-            tiles = new Label[m.Rows, m.Cols];
-
-            for (int i = 0; i < m.Rows; i++)
+            if(mode == Modes.NORMAL)
             {
-                for (int j = 0; j < m.Cols; j++)
-                {
-                    Label tile = CreateTile(m[i, j]);
-                    MazeGrid.Children.Add(tile);
-                    tiles[i, j] = tile;
-                }
-            }
+                MazeGrid.Children.Clear();
+                MazeGrid.Rows = m.Rows;
+                MazeGrid.Columns = m.Cols;
+                MazeGrid.Margin = new Thickness(0);
 
-            DrawPlayer(p.Position);
+                tiles = new Label[m.Rows, m.Cols];
+
+                for (int i = 0; i < m.Rows; i++)
+                {
+                    for (int j = 0; j < m.Cols; j++)
+                    {
+                        Label tile = CreateTile(m[i, j]);
+                        MazeGrid.Children.Add(tile);
+                        tiles[i, j] = tile;
+                    }
+                }
+
+                DrawPlayer(p.Position);
+            }
+            if(mode == Modes.MIST)
+            {
+                MazeGrid.Children.Clear();
+                MazeGrid.Rows = m.Rows;
+                MazeGrid.Columns = m.Cols;
+                MazeGrid.Margin = new Thickness(0);
+
+                tiles = new Label[m.Rows, m.Cols];
+                for (int i = 0; i < m.Rows; i++)
+                {
+                    for (int j = 0; j < m.Cols; j++)
+                    {
+                        Label tile = CreateTile(mistMap[i, j]);
+                        MazeGrid.Children.Add(tile);
+                        tiles[i, j] = tile;
+                    }
+                }
+                UpdateMistMap(p.Position);
+                DrawPlayer(p.Position);
+            }
+        }
+
+        public void MovePlayer(Direction dir)
+        {
+            vec2 oldPos = p.Position;
+            if(p.Move(dir, m))
+            {
+                tiles[oldPos.Y, oldPos.X].Background = Brushes.Black;
+                tiles[oldPos.Y, oldPos.X].Foreground = Brushes.White;
+                if(mode == Modes.MIST)
+                {
+                    UpdateMistMap(p.Position);
+                }
+                DrawPlayer(p.Position);
+            }
         }
 
 
@@ -95,6 +154,25 @@ namespace LabirintusJatek
         {
             tiles[pPos.Y, pPos.X].Background = Brushes.Yellow;
             tiles[pPos.Y, pPos.X].Foreground = Brushes.Black;       
+        }
+
+        private void UpdateMistMap(vec2 pPos)
+        {
+            mistMap[pPos.Y, pPos.X] = m[pPos.Y, pPos.X];
+            tiles[pPos.Y, pPos.X].Content = m[pPos.Y, pPos.X] == '.' ? "" : m[pPos.Y, pPos.X].ToString();
+
+            Direction[] directions = m.CheckDirections(pPos);
+
+            foreach (var item in directions)
+            {
+                vec2 newPos = pPos + vec2.directions[(int)item];
+                if(newPos.X >= mistMap.GetLength(1) || newPos.X < 0 || newPos.Y >= mistMap.GetLength(0) || newPos.Y < 0)
+                {
+                    continue;
+                }
+                mistMap[newPos.Y, newPos.X] = m[newPos.Y, newPos.X];
+                tiles[newPos.Y, newPos.X].Content = m[newPos.Y, newPos.X] == '.' ? "" : m[newPos.Y, newPos.X].ToString();
+            }
         }
     }
 }

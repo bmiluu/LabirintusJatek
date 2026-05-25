@@ -17,6 +17,14 @@ namespace LabirintusJatek
             this.y = y;
         }
 
+        public static readonly vec2[] directions =
+        {
+            new vec2(0, -1), // Up
+            new vec2(0, 1),  // Down
+            new vec2(-1, 0), // Left
+            new vec2(1, 0)   // Right
+        };
+
         public int X { get => x; set => x = value; }
         public int Y { get => y; set => y = value; }
 

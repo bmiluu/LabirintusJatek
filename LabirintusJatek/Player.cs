@@ -11,6 +11,9 @@ namespace LabirintusJatek
         vec2 position;
 
         public vec2 Position { get => position;}
+
+        
+
         public Player(vec2 position)
         {
             this.position = position;
@@ -40,6 +43,21 @@ namespace LabirintusJatek
                 }
             }
             throw new ArgumentException("Player position not found in the map.");
+        }
+
+        public bool Move(Direction dir, Map m)
+        {
+            vec2 newPos = position + vec2.directions[(int) dir];
+            if (newPos.X < 0 || newPos.X >= m.Cols || newPos.Y < 0 || newPos.Y >= m.Rows)
+            {
+                return false; // Out of bounds
+            }
+            if (m[newPos.Y, newPos.X] != '.' && m.CheckDirections(position).Contains(dir))
+            {
+                position = newPos;
+                return true;
+            }
+            return false;
         }
     }
 }
