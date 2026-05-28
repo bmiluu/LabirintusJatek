@@ -13,6 +13,7 @@ namespace LabirintusJatek
         char[,] map;
         int rows;
         int cols;
+        
 
         public int Rows { get => rows; }
         public int Cols { get => cols; }
@@ -22,11 +23,17 @@ namespace LabirintusJatek
             get { return map[i, j]; }
         }
 
-        public Map( char[,] map)
+        public Map(char[,] map)
         {
             this.map = map;
             rows = map.GetLength(0);
             cols = map.GetLength(1);
+        }
+
+        public Map()
+        {
+            rows = 0; cols = 0;
+            map = new char[rows, cols];
         }
 
         public static bool CheckMapIntegrity(string[] lines)

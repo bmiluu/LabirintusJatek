@@ -23,12 +23,13 @@ namespace LabirintusJatek
     //TODO 3: Maybe add a minimap
     //TODO 4: Add win condition
     //TODO 6: Change rendering format (image based)
+
     public partial class MainWindow : Window
     {
         public MainWindow()
         {
             InitializeComponent();
-            this.Focus();
+            MazeGrid.Focus();
         }
 
         private void LoadMap_Click(object sender, RoutedEventArgs e)
@@ -61,6 +62,10 @@ namespace LabirintusJatek
 
                 case Key.D:
                     GameManager.Instance.MovePlayer(Direction.RIGHT);
+                    break;
+
+                case Key.Enter:
+                    GameManager.Instance.CollectTreasure();
                     break;
             }
         }

@@ -3,20 +3,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace LabirintusJatek
 {
     internal class Player
     {
         vec2 position;
-
+        int collectedTreasures = 0;
         public vec2 Position { get => position;}
-
-        
+        public int CollectedTreasures { get => collectedTreasures; set => collectedTreasures = value; }
 
         public Player(vec2 position)
         {
             this.position = position;
+        }
+
+        public Player()
+        {
+            position = new vec2(0, 0);
         }
 
         public static vec2 DeterminePlayerPos(char[,] map)
@@ -45,19 +50,30 @@ namespace LabirintusJatek
             throw new ArgumentException("Player position not found in the map.");
         }
 
-        public bool Move(Direction dir, Map m)
+        public GameManager.MoveResult Move(Direction dir, Map m)
         {
             vec2 newPos = position + vec2.directions[(int) dir];
-            if (newPos.X < 0 || newPos.X >= m.Cols || newPos.Y < 0 || newPos.Y >= m.Rows)
+            if (newPos.X < 0 || newPos.X >= m.Cols || newPos.Y < 0 || newPos.Y >= m.Rows) // Out of bounds
             {
-                return false; // Out of bounds
+                if(collectedTreasures > 0)
+                {
+                    Console.WriteLine("Congratulations! You have collected all treasures and exited the labyrinth!");
+                    return GameManager.MoveResult.EXITED;
+                } 
+                else 
+                {
+                    MessageBox.Show("You cannot exit the labyrinth without collecting any treasures!", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return GameManager.MoveResult.INVALID_MOVE; 
+                }
             }
+
             if (m[newPos.Y, newPos.X] != '.' && m.CheckDirections(position).Contains(dir))
             {
                 position = newPos;
-                return true;
+                return GameManager.MoveResult.VALID_MOVE;
             }
-            return false;
+
+            return GameManager.MoveResult.INVALID_MOVE;
         }
     }
 }

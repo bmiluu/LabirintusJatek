@@ -33,6 +33,15 @@ namespace LabirintusJatek
             return $"({x}, {y})";
         }
 
+        public override bool Equals(object? obj)
+        {
+            if (obj is vec2 other)
+            {
+                return this.x == other.x && this.y == other.y;
+            }
+            return false;
+        }
+
         public static vec2 operator +(vec2 a, vec2 b)
         {
             return new vec2(a.x + b.x, a.y + b.y);

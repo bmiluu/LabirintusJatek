@@ -19,11 +19,11 @@
                 <RowDefinition Height="1*"/>
             </Grid.RowDefinitions>
 
-            <Button Grid.Row="0" Click="LoadMap_Click" FontSize="24" FontFamily="Bahnschrift">Load Map</Button>
-            <Button Grid.Row="2" FontSize="24" FontFamily="Bahnschrift">Display Gilbert</Button>
+            <Button Grid.Row="0" Click="LoadMap_Click" FontSize="24" FontFamily="Bahnschrift" IsDefault="False">Load Map</Button>
+            <Button Grid.Row="2" FontSize="24" FontFamily="Bahnschrift" IsDefault="False">Display Gilbert</Button>
         </Grid>
         <Viewbox Grid.Column="1" StretchDirection="Both" Stretch="Fill" Margin="0">
-            <UniformGrid x:Name="MazeGrid" Background="Black" TextOptions.TextFormattingMode="Display" TextOptions.TextRenderingMode="Aliased" SnapsToDevicePixels="True"/>
+            <UniformGrid Focusable="True" x:Name="MazeGrid" Background="Black" TextOptions.TextFormattingMode="Display" TextOptions.TextRenderingMode="Aliased" SnapsToDevicePixels="True"/>
         </Viewbox>
     </Grid>
 </Window>
