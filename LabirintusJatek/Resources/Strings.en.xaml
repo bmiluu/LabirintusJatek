@@ -1,0 +1,20 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime">
+    <sys:String x:Key="StartButton">Start</sys:String>
+    <sys:String x:Key="SaveButton">Save</sys:String>
+    <sys:String x:Key="ReloadButton">Reload</sys:String>
+    <sys:String x:Key="PlayerPositionInfo">Player position: {0}</sys:String>
+    <sys:String x:Key="TreasuresInfo">Collected treasures: {0}</sys:String>
+    <sys:String x:Key="CanExitInfo">Can exit: {0}</sys:String>
+    <sys:String x:Key="MapError">Invalid map format. Please check the map file and try again.</sys:String>
+    <sys:String x:Key="Error">Error</sys:String>
+    <sys:String x:Key="ModeSelect">Do you want to play in Mist Mode? (Only adjacent tiles will be revealed)</sys:String>
+    <sys:String x:Key="ChooseMode">Choose Mode</sys:String>
+    <sys:String x:Key="ExitText">Congratulations! You have exited the labyrinth!</sys:String>
+    <sys:String x:Key="ExitSummaryText">You collected {0} treasures!</sys:String>
+    <sys:String x:Key="ExitSummary">Exit Summary</sys:String>
+    <sys:String x:Key="Success">Success</sys:String>
+    <sys:String x:Key="ZeroTreasure">You cannot exit the labyrinth without collecting any treasures!</sys:String>
+    <sys:String x:Key="Warning">Warning</sys:String>
+</ResourceDictionary>

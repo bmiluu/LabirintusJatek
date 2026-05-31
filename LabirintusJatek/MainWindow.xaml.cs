@@ -18,8 +18,6 @@ namespace LabirintusJatek
     /// Interaction logic for MainWindow.xaml
     /// </summary>
 
-    //TODO 1: Check tile interconnections
-
     public partial class MainWindow : Window
     {
         public MainWindow()
@@ -41,16 +39,23 @@ namespace LabirintusJatek
 
         private void ReloadMap_Click(object sender, RoutedEventArgs e)
         {
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "Map Files (*.SAV)|*.SAV";
+            if(ofd.ShowDialog() == true)
+            {
+                GameManager.Instance.LoadMap(ofd.FileName);
+                GameManager.Instance.DrawMap(MazeGrid);
+            }
         }
 
         private void SaveMap_Click(object sender, RoutedEventArgs e)
         {
-            //SaveFileDialog sfd = new SaveFileDialog();
-            //sfd.Filter = "Map Files (*.map)|*.map";
-            //if (sfd.ShowDialog() == true)
-            //{
-            //    GameManager.Instance.SaveMap(sfd.FileName);
-            //}
+            SaveFileDialog sfd = new SaveFileDialog();
+            sfd.Filter = "Map Files (*.SAV)|*.SAV";
+            if (sfd.ShowDialog() == true)
+            {
+                GameManager.Instance.SaveMap(sfd.FileName);
+            }
         }
 
         private void Window_KeyDown(object sender, KeyEventArgs e)
@@ -96,6 +101,15 @@ namespace LabirintusJatek
             PlayerPositionLabel.Visibility = Visibility.Collapsed;
             TreasuresLabel.Visibility = Visibility.Collapsed;
             CanExitLabel.Visibility = Visibility.Collapsed;
+        }
+
+        private void LanguageSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if(LanguageSelector.SelectedItem is ComboBoxItem selectedItem)
+            {
+                string languageCode = selectedItem.Tag.ToString();
+                LanguageManager.ChangeLanguage(languageCode);
+            }
         }
     }
 }

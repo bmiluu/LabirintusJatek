@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -30,7 +31,8 @@ namespace LabirintusJatek
         Map m = new Map();
         Player p = new Player();
 
-        public Player Player{
+        public Player Player
+        {
             get => p;
             set
             {
@@ -51,7 +53,7 @@ namespace LabirintusJatek
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public static GameManager Instance { get; } = new GameManager();
-        
+
         public void StartGame(string mapPath)
         {
             string[] lines = File.ReadAllLines(mapPath);
@@ -59,6 +61,7 @@ namespace LabirintusJatek
             int rows = lines.Length;
             int cols = lines[0].Length;
             char[,] map = new char[rows, cols];
+
             if (Map.CheckMapIntegrity(lines))
             {
                 // Proceed with game initialization
@@ -74,7 +77,7 @@ namespace LabirintusJatek
             }
             else
             {
-                MessageBox.Show("Invalid map format. Please check the map file and try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(Application.Current.Resources["MapError"].ToString(), Application.Current.Resources["Error"].ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -83,7 +86,7 @@ namespace LabirintusJatek
             Player = new Player(pPos);
             mistMap = InitMistMap(rows, cols, '.');
 
-            var result = MessageBox.Show("Do you want to play in Mist Mode? (Only adjacent tiles will be revealed)", "Choose Mode", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            var result = MessageBox.Show(Application.Current.Resources["ModeSelect"].ToString(), Application.Current.Resources["ChooseMode"].ToString(), MessageBoxButton.YesNo, MessageBoxImage.Question);
             switch (result)
             {
                 case MessageBoxResult.Yes:
@@ -168,7 +171,7 @@ namespace LabirintusJatek
                     break;
 
                 case MoveResult.EXITED:
-                    MessageBox.Show("Congratulations! You have exited the labyrinth!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show(Application.Current.Resources["ExitText"].ToString(), Application.Current.Resources["Success"].ToString(), MessageBoxButton.OK, MessageBoxImage.Information);
                     TriggerExitSequence();
                     break;
 
@@ -246,7 +249,9 @@ namespace LabirintusJatek
 
         private void TriggerExitSequence()
         {
-            MessageBox.Show($"You collected {p.CollectedTreasures} treasures!", "Exit Summary", MessageBoxButton.OK, MessageBoxImage.Information);
+            string template = Application.Current.Resources["ExitSummaryText"].ToString();
+            string msg = string.Format(template, p.CollectedTreasures);
+            MessageBox.Show(msg, Application.Current.Resources["ExitSummary"].ToString(), MessageBoxButton.OK, MessageBoxImage.Information);
             mGrid.Children.Clear();
             Player = new Player();
             m = new Map();
@@ -254,5 +259,82 @@ namespace LabirintusJatek
             tiles = new Label[0, 0];
         }
 
+        public void SaveMap(string savePath)
+        {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < m.Rows; i++)
+            {
+                for (int j = 0; j < m.Cols; j++)
+                {
+                    sb.Append(m[i, j]);
+                }
+                sb.AppendLine();
+            }
+
+            sb.AppendLine();
+
+            for (int i = 0; i < mistMap.GetLength(0); i++)
+            {
+                for (int j = 0; j < mistMap.GetLength(1); j++)
+                {
+                    sb.Append(mistMap[i, j]);
+                }
+                sb.AppendLine();
+            }
+
+            sb.AppendLine();
+            sb.AppendLine(p.ToString());
+            File.WriteAllText(savePath, sb.ToString());
+        }
+
+        public void LoadMap(string loadPath)
+        {
+            treasureRooms.Clear();
+            string[] lines = File.ReadAllLines(loadPath);
+
+            int rows = lines.TakeWhile(line => !string.IsNullOrWhiteSpace(line)).Count();
+            int cols = lines[0].Length;
+
+            char[,] map = new char[rows, cols];
+            char[,] mistMap = new char[rows, cols];
+
+            string[] playerData = lines.Last().Split(';');
+
+            string[] mapStr = lines.Take(rows).ToArray();
+            string[] mistMapStr = lines.Skip(rows + 1).Take(rows).ToArray();
+
+            FillMapFromStringArray(mapStr, map);
+            FillMapFromStringArray(mistMapStr, mistMap);
+
+            for (int i = 0; i < rows; i++)
+            {
+                for(int j = 0; j < cols; j++)
+                {
+                    if(map[i, j] == '█')
+                    {
+                        treasureRooms.Add(new Vec2(j, i));
+                    }
+                }
+            }
+
+            int collectedTreasures = int.Parse(playerData[1]);
+            string posStr = playerData[0].Trim('(', ')');
+
+            Player.Position = new Vec2(int.Parse(posStr.Split(',')[0]), int.Parse(posStr.Split(',')[1]));
+            Player.CollectedTreasures = collectedTreasures;
+            m = new Map(map);
+            this.mistMap = mistMap;
+        }
+
+        private void FillMapFromStringArray(string[] lines, char[,] map)
+        {
+            for (int i = 0; i < map.GetLength(0); i++)
+            {
+                for (int j = 0; j < map.GetLength(1); j++)
+                {
+                    map[i, j] = lines[i][j];
+                }
+            }
+        }
     }
 }

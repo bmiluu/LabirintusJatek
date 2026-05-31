@@ -19,6 +19,8 @@ namespace LabirintusJatek
             {
                 position = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Position)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CollectedTreasures)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CanExit)));
             }
         }
         public int CollectedTreasures {
@@ -44,6 +46,11 @@ namespace LabirintusJatek
         public Player()
         {
             position = new Vec2(0, 0);
+        }
+
+        public override string ToString()
+        {
+            return $"{position};{collectedTreasures}";
         }
 
         public static Vec2 DeterminePlayerPos(char[,] map)
@@ -79,12 +86,11 @@ namespace LabirintusJatek
             {
                 if(collectedTreasures > 0)
                 {
-                    Console.WriteLine("Congratulations! You have collected all treasures and exited the labyrinth!");
                     return GameManager.MoveResult.EXITED;
                 } 
                 else 
                 {
-                    MessageBox.Show("You cannot exit the labyrinth without collecting any treasures!", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show(Application.Current.Resources["ZeroTreasure"].ToString(), "", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return GameManager.MoveResult.INVALID_MOVE; 
                 }
             }

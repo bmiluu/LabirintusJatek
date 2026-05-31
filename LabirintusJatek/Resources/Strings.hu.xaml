@@ -1,0 +1,20 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime">
+    <sys:String x:Key="StartButton">Új pálya</sys:String>
+    <sys:String x:Key="SaveButton">Pályamentés</sys:String>
+    <sys:String x:Key="ReloadButton">Pályabetöltés</sys:String>
+    <sys:String x:Key="PlayerPositionInfo">Játékos pozíciója: {0}</sys:String>
+    <sys:String x:Key="TreasuresInfo">Begyüjtött zsákmány: {0}</sys:String>
+    <sys:String x:Key="CanExitInfo">Menekülni tud: {0}</sys:String>
+    <sys:String x:Key="MapError">Nem megfelelő pályaformátum. Ellenőrizd a pályafájlt és próbáld újra!</sys:String>
+    <sys:String x:Key="Error">Hiba</sys:String>
+    <sys:String x:Key="ModeSelect">Szeretnél ködben játszani? (Csak az újonnan felfedezett folyosók lesznek láthatóak)</sys:String>
+    <sys:String x:Key="ChooseMode">Válassz módot</sys:String>
+    <sys:String x:Key="ExitText">Gratulálok! Kiszöktél a labirintusból!</sys:String>
+    <sys:String x:Key="ExitSummaryText">Összegyűjtöttél {0} zsákmányt!</sys:String>
+    <sys:String x:Key="ExitSummary">Kijutási eredmények</sys:String>
+    <sys:String x:Key="Success">Siker</sys:String>
+    <sys:String x:Key="ZeroTreasure">Zsákmány nékül nem tudod elhagyni a labirintust!</sys:String>
+    <sys:String x:Key="Warning">Figyelmeztetés</sys:String>
+</ResourceDictionary>
