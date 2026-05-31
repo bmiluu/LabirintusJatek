@@ -19,17 +19,13 @@ namespace LabirintusJatek
     /// </summary>
 
     //TODO 1: Check tile interconnections
-    //TODO 2: Change rendering to only display a 30x30 area around the player
-    //TODO 3: Maybe add a minimap
-    //TODO 4: Add win condition
-    //TODO 6: Change rendering format (image based)
 
     public partial class MainWindow : Window
     {
         public MainWindow()
         {
             InitializeComponent();
-            MazeGrid.Focus();
+            DataContext = GameManager.Instance;
         }
 
         private void LoadMap_Click(object sender, RoutedEventArgs e)
@@ -39,9 +35,22 @@ namespace LabirintusJatek
             if(ofd.ShowDialog() == true)
             {
                 GameManager.Instance.StartGame(ofd.FileName);
-                MazeGrid.Children.Clear();
                 GameManager.Instance.DrawMap(MazeGrid);
             }
+        }
+
+        private void ReloadMap_Click(object sender, RoutedEventArgs e)
+        {
+        }
+
+        private void SaveMap_Click(object sender, RoutedEventArgs e)
+        {
+            //SaveFileDialog sfd = new SaveFileDialog();
+            //sfd.Filter = "Map Files (*.map)|*.map";
+            //if (sfd.ShowDialog() == true)
+            //{
+            //    GameManager.Instance.SaveMap(sfd.FileName);
+            //}
         }
 
         private void Window_KeyDown(object sender, KeyEventArgs e)
@@ -64,10 +73,29 @@ namespace LabirintusJatek
                     GameManager.Instance.MovePlayer(Direction.RIGHT);
                     break;
 
-                case Key.Enter:
+                case Key.F:
                     GameManager.Instance.CollectTreasure();
                     break;
+
+                case Key.G:
+                    HideUIElements();
+                    break;
             }
+        }
+
+        private void HideUIElements()
+        {
+            if(PlayerPositionLabel.Visibility == Visibility.Collapsed)
+            {
+                PlayerPositionLabel.Visibility = Visibility.Visible;
+                TreasuresLabel.Visibility = Visibility.Visible;
+                CanExitLabel.Visibility = Visibility.Visible;
+                return;
+            }
+
+            PlayerPositionLabel.Visibility = Visibility.Collapsed;
+            TreasuresLabel.Visibility = Visibility.Collapsed;
+            CanExitLabel.Visibility = Visibility.Collapsed;
         }
     }
 }

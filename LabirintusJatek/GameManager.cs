@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,7 +12,7 @@ using System.Windows.Media;
 
 namespace LabirintusJatek
 {
-    public class GameManager
+    public class GameManager : INotifyPropertyChanged
     {
         private enum Modes
         {
@@ -28,20 +30,32 @@ namespace LabirintusJatek
         Map m = new Map();
         Player p = new Player();
 
+        public Player Player{
+            get => p;
+            set
+            {
+                p = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Player)));
+            }
+        }
+
         Label[,] tiles = new Label[0, 0];
         char[,] mistMap = new char[0, 0];
 
         Modes mode = Modes.MIST;
 
-        List<vec2> treasureRooms = new List<vec2>();
+        List<Vec2> treasureRooms = new List<Vec2>();
 
         UniformGrid mGrid = null!;
+
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         public static GameManager Instance { get; } = new GameManager();
         
         public void StartGame(string mapPath)
         {
-            string[] lines = System.IO.File.ReadAllText(mapPath).Replace("\r", "").Split('\n');
+            string[] lines = File.ReadAllLines(mapPath);
+            lines = lines.Where(line => !string.IsNullOrWhiteSpace(line)).ToArray();
             int rows = lines.Length;
             int cols = lines[0].Length;
             char[,] map = new char[rows, cols];
@@ -54,7 +68,7 @@ namespace LabirintusJatek
                     {
                         map[i, j] = lines[i][j];
                         if (lines[i][j] == '█')
-                            treasureRooms.Add(new vec2(j, i));
+                            treasureRooms.Add(new Vec2(j, i));
                     }
                 }
             }
@@ -64,11 +78,21 @@ namespace LabirintusJatek
                 return;
             }
 
-            vec2 pPos = Player.DeterminePlayerPos(map);
-            p = new Player(pPos);
+            Vec2 pPos = Player.DeterminePlayerPos(map);
             m = new Map(map);
+            Player = new Player(pPos);
             mistMap = InitMistMap(rows, cols, '.');
 
+            var result = MessageBox.Show("Do you want to play in Mist Mode? (Only adjacent tiles will be revealed)", "Choose Mode", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            switch (result)
+            {
+                case MessageBoxResult.Yes:
+                    mode = Modes.MIST;
+                    break;
+                case MessageBoxResult.No:
+                    mode = Modes.NORMAL;
+                    break;
+            }
         }
 
         char[,] InitMistMap(int rows, int cols, char c)
@@ -132,7 +156,7 @@ namespace LabirintusJatek
 
         public void MovePlayer(Direction dir)
         {
-            vec2 oldPos = p.Position;
+            Vec2 oldPos = p.Position;
             switch (p.Move(dir, m))
             {
                 case MoveResult.VALID_MOVE:
@@ -178,13 +202,13 @@ namespace LabirintusJatek
             return tile;
         }
 
-        private void DrawPlayer(vec2 pPos)
+        private void DrawPlayer(Vec2 pPos)
         {
             tiles[pPos.Y, pPos.X].Background = Brushes.Yellow;
             tiles[pPos.Y, pPos.X].Foreground = Brushes.Black;
         }
 
-        private void RedrawPlayer(vec2 pPos, vec2 oldPos)
+        private void RedrawPlayer(Vec2 pPos, Vec2 oldPos)
         {
             tiles[oldPos.Y, oldPos.X].Background = Brushes.Black;
             tiles[oldPos.Y, oldPos.X].Foreground = Brushes.White;
@@ -192,7 +216,7 @@ namespace LabirintusJatek
             tiles[pPos.Y, pPos.X].Foreground = Brushes.Black;
         }
 
-        private void UpdateMistMap(vec2 pPos)
+        private void UpdateMistMap(Vec2 pPos)
         {
             mistMap[pPos.Y, pPos.X] = m[pPos.Y, pPos.X];
             tiles[pPos.Y, pPos.X].Content = m[pPos.Y, pPos.X] == '.' ? "" : m[pPos.Y, pPos.X].ToString();
@@ -201,7 +225,7 @@ namespace LabirintusJatek
 
             foreach (var item in directions)
             {
-                vec2 newPos = pPos + vec2.directions[(int)item];
+                Vec2 newPos = pPos + Vec2.directions[(int)item];
                 if (newPos.X >= mistMap.GetLength(1) || newPos.X < 0 || newPos.Y >= mistMap.GetLength(0) || newPos.Y < 0)
                 {
                     continue;
@@ -224,10 +248,11 @@ namespace LabirintusJatek
         {
             MessageBox.Show($"You collected {p.CollectedTreasures} treasures!", "Exit Summary", MessageBoxButton.OK, MessageBoxImage.Information);
             mGrid.Children.Clear();
-            p = new Player();
+            Player = new Player();
             m = new Map();
             mistMap = new char[0, 0];
             tiles = new Label[0, 0];
         }
+
     }
 }

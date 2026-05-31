@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -7,24 +8,45 @@ using System.Windows;
 
 namespace LabirintusJatek
 {
-    internal class Player
+    public class Player : INotifyPropertyChanged
     {
-        vec2 position;
+        Vec2 position;
         int collectedTreasures = 0;
-        public vec2 Position { get => position;}
-        public int CollectedTreasures { get => collectedTreasures; set => collectedTreasures = value; }
 
-        public Player(vec2 position)
+        public Vec2 Position {
+            get => position;
+            set
+            {
+                position = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Position)));
+            }
+        }
+        public int CollectedTreasures {
+            get => collectedTreasures;
+            set
+            {
+                collectedTreasures = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CollectedTreasures)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CanExit)));
+            }
+        }
+
+        public bool CanExit => collectedTreasures > 0;
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+
+        public Player(Vec2 position)
         {
             this.position = position;
         }
 
         public Player()
         {
-            position = new vec2(0, 0);
+            position = new Vec2(0, 0);
         }
 
-        public static vec2 DeterminePlayerPos(char[,] map)
+        public static Vec2 DeterminePlayerPos(char[,] map)
         {
             for (int i = 0; i < map.GetLength(0); i++)
             {
@@ -34,7 +56,7 @@ namespace LabirintusJatek
                     {
                         if(map[i, j] == '║')
                         {
-                            return new vec2(j, i);
+                            return new Vec2(j, i);
                         }
                     }
 
@@ -42,7 +64,7 @@ namespace LabirintusJatek
                     {
                         if (map[i, j] == '═')
                         {
-                            return new vec2(j, i);
+                            return new Vec2(j, i);
                         }
                     }
                 }
@@ -52,8 +74,8 @@ namespace LabirintusJatek
 
         public GameManager.MoveResult Move(Direction dir, Map m)
         {
-            vec2 newPos = position + vec2.directions[(int) dir];
-            if (newPos.X < 0 || newPos.X >= m.Cols || newPos.Y < 0 || newPos.Y >= m.Rows) // Out of bounds
+            Vec2 newPos = position + Vec2.directions[(int) dir];
+            if (isOutOfBounds(newPos, m) && m.CheckDirections(position).Contains(dir)) // Out of bounds
             {
                 if(collectedTreasures > 0)
                 {
@@ -67,13 +89,18 @@ namespace LabirintusJatek
                 }
             }
 
-            if (m[newPos.Y, newPos.X] != '.' && m.CheckDirections(position).Contains(dir))
+            if (!isOutOfBounds(newPos, m) && m[newPos.Y, newPos.X] != '.' && m.CheckDirections(position).Contains(dir) && m.GetInterConnections(position, dir).Contains(m[newPos.Y, newPos.X]))
             {
-                position = newPos;
+                Position = newPos;
                 return GameManager.MoveResult.VALID_MOVE;
             }
 
             return GameManager.MoveResult.INVALID_MOVE;
+        }
+
+        private bool isOutOfBounds(Vec2 pos, Map m)
+        {
+            return pos.X < 0 || pos.X >= m.Cols || pos.Y < 0 || pos.Y >= m.Rows;
         }
     }
 }
