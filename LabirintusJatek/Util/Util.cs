@@ -8,10 +8,6 @@ namespace LabirintusJatek.Util
 {
     public static class Util
     {
-        // ---------------------------
-        // 1. ROOM SZÁMOLÁS (BFS)
-        // ---------------------------
-
         /// <summary>
         /// Megadja, hogy hány termet tartamaz a térkép
         /// </summary>
@@ -20,62 +16,23 @@ namespace LabirintusJatek.Util
 
         public static int GetRoomNumber(char[,] map)
         {
-            int rows = map.GetLength(0); // sorok száma
-            int cols = map.GetLength(1); // oszlopok száma
+            int count = 0;
 
-            bool[,] visited = new bool[rows, cols]; // jelöli, hogy jártunk-e már itt
-
-            HashSet<char> walls = new HashSet<char>  // fal karakterek listája
+            for (int i = 0; i < map.GetLength(0); i++)
             {
-                '═','║','╔','╗','╚','╝','╦','╩','╣','╠','╬','█'
-            };
-
-            int rooms = 0; // itt számoljuk a különálló területeket
-
-            // végigmegyünk minden mezőn
-            for (int i = 0; i < rows; i++)
-            {
-                for (int j = 0; j < cols; j++)
+                for (int j = 0; j < map.GetLength(1); j++)
                 {
-                    if (visited[i, j]) continue; // ha már bejártuk, kihagyjuk
-                    if (walls.Contains(map[i, j])) continue; // fal nem számít
-
-                    rooms++; // új összefüggő terület kezdődik
-
-                    Queue<(int x, int y)> q = new(); // BFS sor
-                    q.Enqueue((j, i)); // kiinduló pont
-                    visited[i, j] = true; // megjelöljük
-
-                    // BFS bejárás
-                    while (q.Count > 0)
-                    {
-                        var (x, y) = q.Dequeue(); // aktuális mező
-
-                        foreach (var d in Vec2.directions) // 4 irány
-                        {
-                            int nx = x + d.X; // új X koordináta
-                            int ny = y + d.Y; // új Y koordináta
-
-                            // határok ellenőrzése
-                            if (nx < 0 || ny < 0 || nx >= cols || ny >= rows)
-                                continue;
-
-                            if (visited[ny, nx]) continue; // már jártunk itt
-                            if (walls.Contains(map[ny, nx])) continue; // fal
-
-                            visited[ny, nx] = true; // bejelöljük
-                            q.Enqueue((nx, ny)); // tovább vizsgáljuk
-                        }
-                    }
+                    if (map[i, j] == '█')
+                        count++;
                 }
             }
 
-            return rooms; // visszaadjuk hány terület van
+            return count;
         }
-
-        // ---------------------------
-        // 2. KIJÁRATOK SZÁMA
-        // ---------------------------
+        private static bool IsPath(char c)
+        {
+            return c != '.' && c != '█';
+        }
 
         /// <summary>
         /// A kapott térkép széleit végignézve megállapítja, hogy hány kijárat van.
@@ -84,31 +41,27 @@ namespace LabirintusJatek.Util
         /// <returns>Az alkalmas kijáratok száma</returns>
         public static int GetSuitableEntrance(char[,] map)
         {
+            int count = 0;
             int rows = map.GetLength(0);
             int cols = map.GetLength(1);
 
-            int count = 0; // kijáratok száma
-
-            // felső és alsó sor vizsgálata
-            for (int x = 0; x < cols; x++)
+            for (int i = 0; i < rows; i++)
             {
-                if (map[0, x] != '█') count++; // felső sor
-                if (map[rows - 1, x] != '█') count++; // alsó sor
-            }
+                for (int j = 0; j < cols; j++)
+                {
+                    bool border =
+                        i == 0 ||
+                        i == rows - 1 ||
+                        j == 0 ||
+                        j == cols - 1;
 
-            // bal és jobb oldal (sarok duplázás nélkül)
-            for (int y = 1; y < rows - 1; y++)
-            {
-                if (map[y, 0] != '█') count++; // bal oldal
-                if (map[y, cols - 1] != '█') count++; // jobb oldal
+                    if (border && IsPath(map[i, j]))
+                        count++;
+                }
             }
 
             return count;
         }
-
-        // ---------------------------
-        // 3. ÉRVÉNYTELEN KARAKTER
-        // ---------------------------
 
         /// <summary>
         /// Megnézi, hogy van-e a térképen meg nem engedett karakter?
@@ -117,23 +70,53 @@ namespace LabirintusJatek.Util
         /// <returns>true - A térkép tartalmaz szabálytalan karaktert, false - nincs benne ilyen</returns>
         public static bool IsInvalidElement(char[,] map)
         {
-            string valid = "═║╔╗╚╝╦╩╣╠╬█."; // engedélyezett karakterek
-
-            for (int y = 0; y < map.GetLength(0); y++)
+            char[] valid =
             {
-                for (int x = 0; x < map.GetLength(1); x++)
+                '.', '█',
+                '║', '═',
+                '╔', '╗',
+                '╚', '╝',
+                '╠', '╣',
+                '╦', '╩',
+                '╬'
+            };
+
+            for (int i = 0; i < map.GetLength(0); i++)
+            {
+                for (int j = 0; j < map.GetLength(1); j++)
                 {
-                    if (!valid.Contains(map[y, x])) // ha nem szerepel
-                        return true; // hibás map
+                    if (!valid.Contains(map[i, j]))
+                        return true;
                 }
             }
 
-            return false; // minden ok
+            return false;
         }
 
-        // ---------------------------
-        // 4. ELÉRHETETLEN ELEMEK
-        // ---------------------------
+        private static bool ConnectsUp(char c)
+        {
+            return c == '║' || c == '╚' || c == '╝' ||
+                   c == '╠' || c == '╣' || c == '╬';
+        }
+
+        private static bool ConnectsDown(char c)
+        {
+            return c == '║' || c == '╔' || c == '╗' ||
+                   c == '╠' || c == '╣' || c == '╬';
+        }
+
+        private static bool ConnectsLeft(char c)
+        {
+            return c == '═' || c == '╗' || c == '╝' ||
+                   c == '╦' || c == '╩' || c == '╬';
+        }
+
+        private static bool ConnectsRight(char c)
+        {
+            return c == '═' || c == '╔' || c == '╚' ||
+                   c == '╦' || c == '╩' || c == '╬';
+        }
+
 
         /// <summary>
         /// Visszaadja azoknak a járatkaraktereknek a pozícióját, amelyekhez egyetlen szomszéd pozícióból sem lehet eljutni.
@@ -142,46 +125,52 @@ namespace LabirintusJatek.Util
         /// <returns>A pozíciók "sor_index:oszlop_index" formátumban szerepelnek a lista elemeiként
         public static List<string> GetUnavailableElements(char[,] map)
         {
-            List<string> result = new(); // ide gyűjtjük az árva mezőket
+            List<string> result = new List<string>();
 
             int rows = map.GetLength(0);
             int cols = map.GetLength(1);
 
-            for (int y = 0; y < rows; y++)
+            for (int r = 0; r < rows; r++)
             {
-                for (int x = 0; x < cols; x++)
+                for (int c = 0; c < cols; c++)
                 {
-                    if (map[y, x] == '.') continue; // üres mező nem érdekes
+                    if (!IsPath(map[r, c]))
+                        continue;
 
-                    bool hasNeighbour = false; // van-e szomszédja?
+                    bool connected = false;
 
-                    foreach (var d in Vec2.directions) // 4 irány
-                    {
-                        int nx = x + d.X;
-                        int ny = y + d.Y;
+                    // fel
+                    if (r > 0 &&
+                        ConnectsUp(map[r, c]) &&
+                        ConnectsDown(map[r - 1, c]))
+                        connected = true;
 
-                        // határok
-                        if (nx < 0 || ny < 0 || nx >= cols || ny >= rows)
-                            continue;
+                    // le
+                    if (r < rows - 1 &&
+                        ConnectsDown(map[r, c]) &&
+                        ConnectsUp(map[r + 1, c]))
+                        connected = true;
 
-                        if (map[ny, nx] != '.') // ha van szomszéd
-                        {
-                            hasNeighbour = true;
-                            break;
-                        }
-                    }
+                    // bal
+                    if (c > 0 &&
+                        ConnectsLeft(map[r, c]) &&
+                        ConnectsRight(map[r, c - 1]))
+                        connected = true;
 
-                    if (!hasNeighbour) // ha nincs kapcsolat
-                        result.Add($"{y}:{x}"); // eltároljuk
+                    // jobb
+                    if (c < cols - 1 &&
+                        ConnectsRight(map[r, c]) &&
+                        ConnectsLeft(map[r, c + 1]))
+                        connected = true;
+
+                    if (!connected)
+                        result.Add($"{r}:{c}");
                 }
             }
 
             return result;
         }
 
-        // ---------------------------
-        // 5. LABIRINTUS GENERÁLÁS
-        // ---------------------------
 
         /// <summary>
         /// Labiritust generál a kapott pozíciókat tartalmazó lista alapján. A lista elemei egymáshoz kapcsolódó járatok pozíciói.
@@ -190,36 +179,68 @@ namespace LabirintusJatek.Util
         /// <returns>A létrehozott labirintus térképe</returns>
         public static char[,] GenerateLabyrinth(List<string> positionsList)
         {
-            int maxR = 0; // legnagyobb sor
-            int maxC = 0; // legnagyobb oszlop
+            int maxRow = 0;
+            int maxCol = 0;
 
-            List<(int r, int c)> parsed = new(); // feldolgozott koordináták
+            HashSet<(int r, int c)> positions = new();
 
-            // string → koordináta
-            foreach (var s in positionsList)
+            foreach (string pos in positionsList)
             {
-                var parts = s.Split(':'); // "4:12"
-                int r = int.Parse(parts[0]); // sor
-                int c = int.Parse(parts[1]); // oszlop
+                string[] parts = pos.Split(':');
 
-                parsed.Add((r, c)); // eltároljuk
+                int r = int.Parse(parts[0]);
+                int c = int.Parse(parts[1]);
 
-                maxR = Math.Max(maxR, r); // max sor
-                maxC = Math.Max(maxC, c); // max oszlop
+                positions.Add((r, c));
+
+                maxRow = Math.Max(maxRow, r);
+                maxCol = Math.Max(maxCol, c);
             }
 
-            char[,] map = new char[maxR + 1, maxC + 1]; // pálya mérete
+            char[,] map = new char[maxRow + 1, maxCol + 1];
 
-            // alap kitöltés (üres)
-            for (int i = 0; i <= maxR; i++)
-                for (int j = 0; j <= maxC; j++)
-                    map[i, j] = '.';
+            for (int r = 0; r <= maxRow; r++)
+            {
+                for (int c = 0; c <= maxCol; c++)
+                {
+                    map[r, c] = '.';
+                }
+            }
 
-            // bejárható pontok beírása
-            foreach (var p in parsed)
-                map[p.r, p.c] = '█';
+            foreach (var p in positions)
+            {
+                bool up = positions.Contains((p.r - 1, p.c));
+                bool down = positions.Contains((p.r + 1, p.c));
+                bool left = positions.Contains((p.r, p.c - 1));
+                bool right = positions.Contains((p.r, p.c + 1));
 
-            return map; // kész pálya
+                if (up && down && left && right)
+                    map[p.r, p.c] = '╬';
+                else if (up && down && left)
+                    map[p.r, p.c] = '╣';
+                else if (up && down && right)
+                    map[p.r, p.c] = '╠';
+                else if (left && right && up)
+                    map[p.r, p.c] = '╩';
+                else if (left && right && down)
+                    map[p.r, p.c] = '╦';
+                else if (up && down)
+                    map[p.r, p.c] = '║';
+                else if (left && right)
+                    map[p.r, p.c] = '═';
+                else if (down && right)
+                    map[p.r, p.c] = '╔';
+                else if (down && left)
+                    map[p.r, p.c] = '╗';
+                else if (up && right)
+                    map[p.r, p.c] = '╚';
+                else if (up && left)
+                    map[p.r, p.c] = '╝';
+                else
+                    map[p.r, p.c] = '•';
+            }
+
+            return map;
         }
     }
 }
