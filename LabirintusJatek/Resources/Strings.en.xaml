@@ -17,4 +17,5 @@
     <sys:String x:Key="Success">Success</sys:String>
     <sys:String x:Key="ZeroTreasure">You cannot exit the labyrinth without collecting any treasures!</sys:String>
     <sys:String x:Key="Warning">Warning</sys:String>
+    <sys:String x:Key="NoGame">There is no game being played!</sys:String>
 </ResourceDictionary>

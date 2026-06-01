@@ -50,11 +50,18 @@ namespace LabirintusJatek
 
         private void SaveMap_Click(object sender, RoutedEventArgs e)
         {
-            SaveFileDialog sfd = new SaveFileDialog();
-            sfd.Filter = "Map Files (*.SAV)|*.SAV";
-            if (sfd.ShowDialog() == true)
+            if (GameManager.Instance.isGame)
             {
-                GameManager.Instance.SaveMap(sfd.FileName);
+                SaveFileDialog sfd = new SaveFileDialog();
+                sfd.Filter = "Map Files (*.SAV)|*.SAV";
+                if (sfd.ShowDialog() == true)
+                {
+                    GameManager.Instance.SaveMap(sfd.FileName);
+                }
+            }
+            else
+            {
+                MessageBox.Show(Application.Current.Resources["NoGame"].ToString(), Application.Current.Resources["Error"].ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

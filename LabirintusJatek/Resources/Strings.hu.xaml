@@ -17,4 +17,5 @@
     <sys:String x:Key="Success">Siker</sys:String>
     <sys:String x:Key="ZeroTreasure">Zsákmány nékül nem tudod elhagyni a labirintust!</sys:String>
     <sys:String x:Key="Warning">Figyelmeztetés</sys:String>
+    <sys:String x:Key="NoGame">Nincs aktív játék!</sys:String>
 </ResourceDictionary>

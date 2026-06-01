@@ -18,7 +18,7 @@ namespace LabirintusJatek.Util
         /// <param name="map">Labirintus mátrixa</param>
         /// <returns>Termek száma</returns>
 
-        static int GetRoomNumber(char[,] map)
+        public static int GetRoomNumber(char[,] map)
         {
             int rows = map.GetLength(0); // sorok száma
             int cols = map.GetLength(1); // oszlopok száma
@@ -82,7 +82,7 @@ namespace LabirintusJatek.Util
         /// </summary>
         /// <param name="map">Labirintus mátrixa</param>
         /// <returns>Az alkalmas kijáratok száma</returns>
-        static int GetSuitableEntrance(char[,] map)
+        public static int GetSuitableEntrance(char[,] map)
         {
             int rows = map.GetLength(0);
             int cols = map.GetLength(1);
@@ -115,7 +115,7 @@ namespace LabirintusJatek.Util
         /// </summary>
         /// <param name="map">Labirintus mátrixa</param>
         /// <returns>true - A térkép tartalmaz szabálytalan karaktert, false - nincs benne ilyen</returns>
-        static bool IsInvalidElement(char[,] map)
+        public static bool IsInvalidElement(char[,] map)
         {
             string valid = "═║╔╗╚╝╦╩╣╠╬█."; // engedélyezett karakterek
 
@@ -140,7 +140,7 @@ namespace LabirintusJatek.Util
         /// </summary>
         /// <param name="map">Labirintus mátrixa</param>
         /// <returns>A pozíciók "sor_index:oszlop_index" formátumban szerepelnek a lista elemeiként
-        static List<string> GetUnavailableElements(char[,] map)
+        public static List<string> GetUnavailableElements(char[,] map)
         {
             List<string> result = new(); // ide gyűjtjük az árva mezőket
 
@@ -188,7 +188,7 @@ namespace LabirintusJatek.Util
         /// </summary>
         /// <param name="positionsList">"sor_index:oszlop_index" formátumban az egymáshoz kapcsolódó járatok pozícióit tartalmazó lista </param>
         /// <returns>A létrehozott labirintus térképe</returns>
-        static char[,] GenerateLabyrinth(List<string> positionsList)
+        public static char[,] GenerateLabyrinth(List<string> positionsList)
         {
             int maxR = 0; // legnagyobb sor
             int maxC = 0; // legnagyobb oszlop

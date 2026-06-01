@@ -30,6 +30,7 @@ namespace LabirintusJatek
 
         Map m = new Map();
         Player p = new Player();
+        public bool isGame = false;
 
         public Player Player
         {
@@ -77,11 +78,24 @@ namespace LabirintusJatek
             }
             else
             {
-                MessageBox.Show(Application.Current.Resources["MapError"].ToString(), Application.Current.Resources["Error"].ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
+                ShowError();
+                return;
+            }
+
+            if(Util.Util.IsInvalidElement(map))
+            {
+                ShowError();
                 return;
             }
 
             Vec2 pPos = Player.DeterminePlayerPos(map);
+
+            if (pPos.Equals(new Vec2(-1, -1)))
+            {
+                ShowError();
+                return;
+            }
+            
             m = new Map(map);
             Player = new Player(pPos);
             mistMap = InitMistMap(rows, cols, '.');
@@ -96,6 +110,7 @@ namespace LabirintusJatek
                     mode = Modes.NORMAL;
                     break;
             }
+            isGame = true;
         }
 
         char[,] InitMistMap(int rows, int cols, char c)
@@ -257,34 +272,39 @@ namespace LabirintusJatek
             m = new Map();
             mistMap = new char[0, 0];
             tiles = new Label[0, 0];
+            isGame = false;
         }
 
         public void SaveMap(string savePath)
         {
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < m.Rows; i++)
-            {
-                for (int j = 0; j < m.Cols; j++)
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < m.Rows; i++)
                 {
-                    sb.Append(m[i, j]);
+                    for (int j = 0; j < m.Cols; j++)
+                    {
+                        sb.Append(m[i, j]);
+                    }
+                    sb.AppendLine();
                 }
+
                 sb.AppendLine();
-            }
 
-            sb.AppendLine();
-
-            for (int i = 0; i < mistMap.GetLength(0); i++)
-            {
-                for (int j = 0; j < mistMap.GetLength(1); j++)
+                for (int i = 0; i < mistMap.GetLength(0); i++)
                 {
-                    sb.Append(mistMap[i, j]);
+                    for (int j = 0; j < mistMap.GetLength(1); j++)
+                    {
+                        sb.Append(mistMap[i, j]);
+                    }
+                    sb.AppendLine();
                 }
-                sb.AppendLine();
-            }
 
-            sb.AppendLine();
-            sb.AppendLine(p.ToString());
-            File.WriteAllText(savePath, sb.ToString());
+                sb.AppendLine();
+                
+                sb.AppendLine(string.Join(";", treasureRooms));
+                sb.AppendLine(mode.ToString());
+                sb.AppendLine(p.ToString());
+                File.WriteAllText(savePath, sb.ToString());
+            
         }
 
         public void LoadMap(string loadPath)
@@ -298,6 +318,7 @@ namespace LabirintusJatek
             char[,] map = new char[rows, cols];
             char[,] mistMap = new char[rows, cols];
 
+            string[] treasureRoomsStr = lines[lines.Length - 3].Split(';');
             string[] playerData = lines.Last().Split(';');
 
             string[] mapStr = lines.Take(rows).ToArray();
@@ -306,24 +327,27 @@ namespace LabirintusJatek
             FillMapFromStringArray(mapStr, map);
             FillMapFromStringArray(mistMapStr, mistMap);
 
-            for (int i = 0; i < rows; i++)
-            {
-                for(int j = 0; j < cols; j++)
-                {
-                    if(map[i, j] == '█')
-                    {
-                        treasureRooms.Add(new Vec2(j, i));
-                    }
-                }
-            }
-
             int collectedTreasures = int.Parse(playerData[1]);
             string posStr = playerData[0].Trim('(', ')');
 
             Player.Position = new Vec2(int.Parse(posStr.Split(',')[0]), int.Parse(posStr.Split(',')[1]));
             Player.CollectedTreasures = collectedTreasures;
+
+            mode = Enum.Parse<Modes>(lines[lines.Length -2]);
+
             m = new Map(map);
             this.mistMap = mistMap;
+
+            if (treasureRoomsStr[0] != "")
+            {
+                foreach (string treasureRoom in treasureRoomsStr)
+                {
+                    string trimmed = treasureRoom.Trim('(', ')');
+                    treasureRooms.Add(new Vec2(int.Parse(trimmed.Split(',')[0]), int.Parse(trimmed.Split(',')[1])));
+                }
+            }
+
+            isGame = true;
         }
 
         private void FillMapFromStringArray(string[] lines, char[,] map)
@@ -335,6 +359,11 @@ namespace LabirintusJatek
                     map[i, j] = lines[i][j];
                 }
             }
+        }
+
+        private void ShowError()
+        {
+            MessageBox.Show(Application.Current.Resources["MapError"].ToString(), Application.Current.Resources["Error"].ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 }

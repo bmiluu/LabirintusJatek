@@ -59,24 +59,40 @@ namespace LabirintusJatek
             {
                 for (int j = 0; j < map.GetLength(1); j++)
                 {
-                    if(i == 0 || i == map.GetLength(0) - 1)
+                    if(i == 0)
                     {
-                        if(map[i, j] == '║')
+                        if (new[] { '║', '╚', '╝', '╩', '╣', '╠', '╬' }.Contains(map[i,j]))
                         {
                             return new Vec2(j, i);
                         }
                     }
 
-                    if (j == 0 || j == map.GetLength(1) - 1)
+                    if(i == map.GetLength(0) - 1)
                     {
-                        if (map[i, j] == '═')
+                        if (new[] { '║', '╔', '╗', '╦', '╣', '╠', '╬' }.Contains(map[i, j]))
+                        {
+                            return new Vec2(j, i);
+                        }
+                    }
+
+                    if (j == 0)
+                    {
+                        if (new[] { '═', '╗', '╝', '╩', '╦', '╣', '╬' }.Contains(map[i,j]))
+                        {
+                            return new Vec2(j, i);
+                        }
+                    }
+
+                    if(j == map.GetLength(1) - 1)
+                    {
+                        if (new[] { '═', '╔', '╚', '╩', '╦', '╠', '╬' }.Contains(map[i, j]))
                         {
                             return new Vec2(j, i);
                         }
                     }
                 }
             }
-            throw new ArgumentException("Player position not found in the map.");
+            return new Vec2(-1, -1); // Invalid position if not found
         }
 
         public GameManager.MoveResult Move(Direction dir, Map m)
